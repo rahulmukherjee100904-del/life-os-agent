@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AgenticLifeAssistantState",
+  "type": "object",
+  "properties": {
+    "messages": {
+      "type": "array",
+      "items": { "type": "object" },
+      "description": "Conversation and action execution history"
+    },
+    "user_schedule": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Stored day-to-day events or reminders"
+    },
+    "expenses": {
+      "type": "array",
+      "items": { "type": "object" },
+      "description": "Tracked user expenses"
+    },
+    "next_step": { "type": "string" }
+  },
+  "required": ["messages"]
+}

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeOS - Agentic Personal Assistant</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    .glass-panel {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/50 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="p-2 bg-indigo-600/20 text-indigo-400 rounded-lg border border-indigo-500/30">
+        <i class="ph-bold ph-robot text-2xl"></i>
+      </div>
+      <div>
+        <h1 class="font-bold text-lg text-slate-100">LifeOS Personal Agent</h1>
+        <p class="text-xs text-slate-400">Autonomous ReAct Loop &amp; Tool System</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Agent Ready
+      </span>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 overflow-hidden max-w-7xl mx-auto w-full">
+    
+    <!-- Left Column: Chat & Tool Interaction (7 cols) -->
+    <section class="lg:col-span-7 flex flex-col glass-panel rounded-xl overflow-hidden border border-slate-800">
+      
+      <!-- Chat Message Window -->
+      <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4 custom-scrollbar h-[500px]">
+        
+        <!-- Assistant Welcome Message -->
+        <div class="flex gap-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
+            <i class="ph-bold ph-bot"></i>
+          </div>
+          <div class="bg-slate-800/80 border border-slate-700/50 rounded-2xl rounded-tl-none p-3 max-w-[85%] text-sm">
+            <p class="text-slate-200">Hello! I am your <strong>Agentic Life Assistant</strong>. I can reason through multi-step requests and call local tools automatically.</p>
+            <div class="mt-2 text-xs text-slate-400">Try asking:</div>
+            <ul class="mt-1 text-xs text-indigo-300 space-y-1">
+              <li class="cursor-pointer hover:underline" onclick="sendQuickPrompt('Log $15 spent on lunch and schedule a doctor meeting tomorrow at 3 PM.')">
+                • "Log $15 spent on lunch and schedule a doctor meeting tomorrow at 3 PM."
+              </li>
+              <li class="cursor-pointer hover:underline" onclick="sendQuickPrompt('How much money have I spent so far?')">
+                • "How much money have I spent so far?"
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Input Box -->
+      <div class="p-3 border-t border-slate-800 bg-slate-900/60">
+        <form id="chat-form" onsubmit="handleSend(event)" class="flex gap-2">
+          <input 
+            type="text" 
+            id="user-input" 
+            placeholder="Type a goal or command for the agent..." 
+            class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 text-slate-200 placeholder-slate-500"
+            required
+          />
+          <button 
+            type="submit" 
+            id="send-btn"
+            class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition flex items-center gap-2"
+          >
+            <span>Send</span>
+            <i class="ph-bold ph-paper-plane-right"></i>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Right Column: State & Local Databases (5 cols) -->
+    <section class="lg:col-span-5 flex flex-col gap-4">
+      
+      <!-- Execution Trace / ReAct Logs -->
+      <div class="glass-panel rounded-xl p-4 border border-slate-800 flex-1 flex flex-col">
+        <h2 class="text-sm font-semibold text-slate-300 flex items-center gap-2 mb-3">
+          <i class="ph-bold ph-cpu text-indigo-400"></i> Agent ReAct Execution Trace
+        </h2>
+        <div id="trace-logs" class="flex-1 bg-slate-950/80 rounded-lg border border-slate-800/80 p-3 font-mono text-xs text-slate-400 overflow-y-auto h-40 custom-scrollbar space-y-2">
+          <p class="text-slate-600">// Execution logs will appear here when agent runs tools...</p>
+        </div>
+      </div>
+
+      <!-- State Inspector (Calendar & Expenses) -->
+      <div class="glass-panel rounded-xl p-4 border border-slate-800 flex-1 flex flex-col gap-3">
+        <h2 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
+          <i class="ph-bold ph-database text-emerald-400"></i> Agent Local Database State
+        </h2>
+        
+        <!-- Calendar State -->
+        <div class="bg-slate-950/60 rounded-lg p-3 border border-slate-800/80 flex-1">
+          <div class="text-xs font-medium text-indigo-300 mb-1 flex justify-between">
+            <span>📅 Calendar Events</span>
+            <span id="calendar-count" class="text-slate-500">0 events</span>
+          </div>
+          <div id="calendar-list" class="text-xs text-slate-400 space-y-1">
+            <p class="text-slate-600 italic">No scheduled events.</p>
+          </div>
+        </div>
+
+        <!-- Expenses State -->
+        <div class="bg-slate-950/60 rounded-lg p-3 border border-slate-800/80 flex-1">
+          <div class="text-xs font-medium text-emerald-300 mb-1 flex justify-between">
+            <span>💵 Tracked Expenses</span>
+            <span id="expense-total" class="text-slate-500">Total: $0.00</span>
+          </div>
+          <div id="expense-list" class="text-xs text-slate-400 space-y-1">
+            <p class="text-slate-600 italic">No expenses logged.</p>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Client JavaScript -->
+  <script>
+    const API_URL = "http://localhost:8000/api/chat";
+
+    function sendQuickPrompt(promptText) {
+      document.getElementById('user-input').value = promptText;
+      handleSend(new Event('submit'));
+    }
+
+    async function handleSend(e) {
+      e.preventDefault();
+      const inputEl = document.getElementById('user-input');
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      // 1. Render User Message
+      renderMessage(text, 'user');
+      inputEl.value = '';
+
+      // 2. Render Loading State
+      const loadingId = renderLoading();
+
+      try {
+        // 3. Call FastAPI Backend
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+
+        const data = await res.json();
+        removeMessage(loadingId);
+
+        // 4. Render Agent Response & Trace
+        renderMessage(data.response, 'assistant');
+        renderTrace(data.trace);
+        updateDatabaseUI(data.calendar, data.expenses);
+
+      } catch (err) {
+        removeMessage(loadingId);
+        renderMessage("Error connecting to Python backend engine. Make sure agent_system.py is running on port 8000.", 'assistant');
+        console.error(err);
+      }
+    }
+
+    function renderMessage(text, sender) {
+      const chatBox = document.getElementById('chat-messages');
+      const isUser = sender === 'user';
+      
+      const msgHtml = `
+        <div class="flex gap-3 ${isUser ? 'justify-end' : ''}">
+          ${!isUser ? `
+            <div class="w-8 h-8 rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
+              <i class="ph-bold ph-bot"></i>
+            </div>
+          ` : ''}
+          <div class="${isUser ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-slate-800/80 border border-slate-700/50 text-slate-200 rounded-tl-none'} rounded-2xl p-3 max-w-[85%] text-sm">
+            ${text}
+          </div>
+        </div>
+      `;
+      chatBox.insertAdjacentHTML('beforeend', msgHtml);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function renderLoading() {
+      const chatBox = document.getElementById('chat-messages');
+      const id = 'loading-' + Date.now();
+      const html = `
+        <div id="${id}" class="flex gap-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
+            <i class="ph-bold ph-spinner animate-spin"></i>
+          </div>
+          <div class="bg-slate-800/80 border border-slate-700/50 rounded-2xl rounded-tl-none p-3 text-xs text-slate-400 flex items-center gap-2">
+            Agent is reasoning and executing tools...
+          </div>
+        </div>
+      `;
+      chatBox.insertAdjacentHTML('beforeend', html);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return id;
+    }
+
+    function removeMessage(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+
+    function renderTrace(trace) {
+      const traceBox = document.getElementById('trace-logs');
+      if (!trace || trace.length === 0) {
+        traceBox.innerHTML = '<p class="text-slate-600">// Agent responded directly without tool invocation.</p>';
+        return;
+      }
+
+      let html = '';
+      trace.forEach(step => {
+        if (step.type === 'tool_call') {
+          html += `<div class="text-indigo-400">⚡ [ACTION]: Executing Tool: <b>${step.name}</b></div>`;
+          html += `<div class="text-slate-500 pl-3">Args: ${JSON.stringify(step.args)}</div>`;
+        } else if (step.type === 'tool_result') {
+          html += `<div class="text-emerald-400">👁️ [OBSERVATION]: ${step.content}</div>`;
+        }
+      });
+      traceBox.innerHTML = html;
+    }
+
+    function updateDatabaseUI(calendar, expenses) {
+      if (calendar) {
+        document.getElementById('calendar-count').innerText = `${calendar.length} events`;
+        const listEl = document.getElementById('calendar-list');
+        if (calendar.length === 0) {
+          listEl.innerHTML = '<p class="text-slate-600 italic">No scheduled events.</p>';
+        } else {
+          listEl.innerHTML = calendar.map(c => `• <b>${c.date}</b> [${c.time}]: ${c.event}`).join('<br>');
+        }
+      }
+
+      if (expenses) {
+        const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+        document.getElementById('expense-total').innerText = `Total: $${total.toFixed(2)}`;
+        const expEl = document.getElementById('expense-list');
+        if (expenses.length === 0) {
+          expEl.innerHTML = '<p class="text-slate-600 italic">No expenses logged.</p>';
+        } else {
+          expEl.innerHTML = expenses.map(e => `• <b>$${e.amount.toFixed(2)}</b> (${e.category}): ${e.description}`).join('<br>');
+        }
+      }
+    }
+  </script>
+</body>
+</html>
